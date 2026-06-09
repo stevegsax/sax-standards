@@ -6,9 +6,11 @@ readme = "README.md"
 requires-python = ">={{ python_version }}"
 authors = [{ name = "SAX Capital", email = "{{ author_email }}" }]
 dependencies = [
-    "pydantic>=2",
     "pydantic-settings>=2",
     "click>=8",
+{%- if include_temporal %}
+    "pydantic>=2",
+{%- endif %}
 {%- if include_db %}
     "sqlalchemy>=2",
     "alembic>=1.13",

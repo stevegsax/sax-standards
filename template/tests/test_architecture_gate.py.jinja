@@ -9,8 +9,22 @@ not added to the contract is a build break, not a silent gap in the gate.
 from configparser import ConfigParser
 from pathlib import Path
 
+import pytest
+
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _PACKAGE = "{{ package_name }}"
+
+
+def _require_gate_config() -> Path:
+    """Skip outside the real repo (mutation-testing copies lack the ini).
+
+    A genuinely deleted importlinter.ini cannot hide behind this skip: the
+    `just lint` gate fails loudly without its --config file.
+    """
+    path = _REPO_ROOT / "importlinter.ini"
+    if not path.is_file():
+        pytest.skip("importlinter.ini not present (mutation-testing copy)")
+    return path
 
 # Modules core/ may import: itself and the stdlib-only pure leaves.
 _PURE = frozenset({"core", "ids", "errors"})
@@ -32,7 +46,7 @@ def _top_level_modules() -> frozenset[str]:
 def _forbidden_to_core() -> frozenset[str]:
     """Module names the core-is-pure contract forbids, package prefix stripped."""
     config = ConfigParser()
-    config.read(_REPO_ROOT / "importlinter.ini")
+    config.read(_require_gate_config())
     forbidden = config["importlinter:contract:core-is-pure"]["forbidden_modules"]
     return frozenset(
         module.removeprefix(f"{_PACKAGE}.") for module in forbidden.split()
@@ -51,7 +65,7 @@ def test_every_shell_module_is_forbidden_to_core() -> None:
 def test_purity_contracts_source_the_whole_core() -> None:
     """Narrowing (or deleting) a purity contract silently re-opens the gate."""
     config = ConfigParser()
-    config.read(_REPO_ROOT / "importlinter.ini")
+    config.read(_require_gate_config())
     for contract in ("core-is-pure", "core-no-io-libs"):
         section = config[f"importlinter:contract:{contract}"]
         sources = section["source_modules"].split()
@@ -64,7 +78,7 @@ def test_purity_contracts_source_the_whole_core() -> None:
 def test_contracts_sandbox_contract_exists() -> None:
     """Temporal repos must keep the core.contracts sandbox-safety contract."""
     config = ConfigParser()
-    config.read(_REPO_ROOT / "importlinter.ini")
+    config.read(_require_gate_config())
     section = config["importlinter:contract:contracts-sandbox-safe"]
     assert f"{_PACKAGE}.core.contracts" in section["source_modules"].split()
 {%- endif %}
