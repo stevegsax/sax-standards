@@ -93,6 +93,10 @@ build break, so the gate can't silently develop holes.
   `with workflow.unsafe.imports_passed_through():`.
 - `db/` is the only place ORM lives; sessions are passed as the first parameter, repos return
   frozen core values, never rows/dicts.
+- **DB is sync** (`Session`, not `AsyncSession`). FastAPI DB routes are sync `def` (threadpool);
+  Temporal DB activities are sync `def` run via the worker's `ThreadPoolExecutor`; workflows stay
+  `async` (orchestration only, no I/O). Async lives only in `clients/` for genuinely concurrent
+  external I/O (`asyncio.TaskGroup`). A service may opt into async DB locally only on measured need.
 - Forbid a `core/shared/` or `core/common/` domain — cross-domain pure helpers live in a named
   domain or are promoted deliberately.
 

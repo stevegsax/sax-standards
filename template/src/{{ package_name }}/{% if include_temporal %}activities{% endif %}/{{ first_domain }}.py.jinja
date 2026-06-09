@@ -8,7 +8,11 @@ from {{ package_name }}.core.contracts.wire import {{ first_domain | capitalize 
 
 
 @activity.defn
-async def persist_{{ first_domain }}(request: {{ first_domain | capitalize }}Request) -> {{ first_domain | capitalize }}Result:
-    """Validate the request (pure decision in core) and report the outcome."""
+def persist_{{ first_domain }}(request: {{ first_domain | capitalize }}Request) -> {{ first_domain | capitalize }}Result:
+    """Validate the request (pure decision in core) and report the outcome.
+
+    Sync activity (house standard): runs in the worker thread pool, so it may call
+    sync db/ repositories and sync clients/ directly.
+    """
     result = make_{{ first_domain }}(request.name)
     return {{ first_domain | capitalize }}Result(name=request.name, ok=isinstance(result, {{ first_domain | capitalize }}))

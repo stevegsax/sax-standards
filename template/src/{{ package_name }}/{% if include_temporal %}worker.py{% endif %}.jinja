@@ -1,6 +1,7 @@
 """Temporal worker — the single registration chokepoint."""
 
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from temporalio.client import Client
 from temporalio.worker import Worker
@@ -10,18 +11,24 @@ from {{ package_name }}.core.contracts.constants import NAMESPACE, TASK_QUEUE
 from {{ package_name }}.settings import Settings
 from {{ package_name }}.workflows import workflows
 
+_MAX_ACTIVITIES = 10
+
 
 async def _run() -> None:
     """Connect and run the worker until cancelled."""
     settings = Settings()
     client = await Client.connect(settings.temporal_target, namespace=NAMESPACE)
-    worker = Worker(
-        client,
-        task_queue=TASK_QUEUE,
-        workflows=workflows(),
-        activities=activities(),
-    )
-    await worker.run()
+    # House standard: DB/clients are sync; activities run in this thread pool.
+    with ThreadPoolExecutor(max_workers=_MAX_ACTIVITIES) as executor:
+        worker = Worker(
+            client,
+            task_queue=TASK_QUEUE,
+            workflows=workflows(),
+            activities=activities(),
+            activity_executor=executor,
+            max_concurrent_activities=_MAX_ACTIVITIES,
+        )
+        await worker.run()
 
 
 def run_worker() -> None:
