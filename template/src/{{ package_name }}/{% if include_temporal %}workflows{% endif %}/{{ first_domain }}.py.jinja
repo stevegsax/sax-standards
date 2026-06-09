@@ -1,0 +1,26 @@
+"""{{ first_domain | capitalize }} workflow — orchestration only; computation delegates to core."""
+
+from datetime import timedelta
+
+from temporalio import workflow
+
+with workflow.unsafe.imports_passed_through():
+    from {{ package_name }}.activities.{{ first_domain }} import persist_{{ first_domain }}
+    from {{ package_name }}.core.contracts.wire import (
+        {{ first_domain | capitalize }}Request,
+        {{ first_domain | capitalize }}Result,
+    )
+
+
+@workflow.defn
+class {{ first_domain | capitalize }}Workflow:
+    """Orchestrates {{ first_domain }} processing."""
+
+    @workflow.run
+    async def run(self, request: {{ first_domain | capitalize }}Request) -> {{ first_domain | capitalize }}Result:
+        """Run the workflow for the given request."""
+        return await workflow.execute_activity(
+            persist_{{ first_domain }},
+            request,
+            start_to_close_timeout=timedelta(seconds=30),
+        )

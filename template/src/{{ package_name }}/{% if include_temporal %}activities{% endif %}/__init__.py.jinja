@@ -1,0 +1,11 @@
+"""Temporal activities. Registered via the side-effect-free activities() list."""
+
+from collections.abc import Callable
+from typing import Any
+
+from {{ package_name }}.activities.{{ first_domain }} import persist_{{ first_domain }}
+
+
+def activities() -> list[Callable[..., Any]]:
+    """Return all activity functions for the worker to register."""
+    return [persist_{{ first_domain }}]

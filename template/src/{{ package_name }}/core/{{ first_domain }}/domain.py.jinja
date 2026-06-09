@@ -1,0 +1,10 @@
+"""{{ first_domain | capitalize }} domain value types — frozen, pure."""
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class {{ first_domain | capitalize }}:
+    """A {{ first_domain }} value object."""
+
+    name: str

@@ -1,0 +1,7 @@
+"""Typed identifiers — stdlib-only leaf, importable everywhere without cycles."""
+
+import uuid
+from typing import NewType
+
+RunId = NewType("RunId", uuid.UUID)
+{{ first_domain | capitalize }}Id = NewType("{{ first_domain | capitalize }}Id", uuid.UUID)

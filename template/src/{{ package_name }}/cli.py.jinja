@@ -1,0 +1,23 @@
+"""Command-line entrypoint — thin shell; delegates to core/workflows."""
+
+import click
+
+
+@click.group()
+def main() -> None:
+    """{{ project_name }} CLI."""
+
+
+@main.command()
+def version() -> None:
+    """Print the version."""
+    click.echo("0.1.0")
+{% if include_temporal %}
+
+@main.command()
+def worker() -> None:
+    """Run the Temporal worker."""
+    from {{ package_name }}.worker import run_worker
+
+    run_worker()
+{% endif %}

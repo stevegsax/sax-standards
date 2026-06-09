@@ -1,0 +1,87 @@
+_subdirectory: template
+_templates_suffix: ".jinja"
+_min_copier_version: "9.0.0"
+
+_message_after_copy: |
+  Scaffolded {{ project_name }}.
+
+  Next:
+    cd {{ _copier_conf.dst_path }}
+    uv sync
+    just lint && just typecheck && just test
+
+  The import-direction contract (importlinter.ini) is the compliance gate. A repo is
+  "standard-compliant" when `just lint` (which runs lint-imports) passes — not when the
+  directory shape merely looks right.
+
+# ── Identity ───────────────────────────────────────────────────────────────
+project_name:
+  type: str
+  help: Human-readable project name (e.g. "Forge OCR")
+
+package_name:
+  type: str
+  help: Importable package name (snake_case, no dashes)
+  default: "{{ project_name|lower|replace('-', '_')|replace(' ', '_') }}"
+  validator: >-
+    {% if not (package_name | regex_search('^[a-z][a-z0-9_]*$')) %}
+    package_name must be a valid lowercase Python identifier (snake_case).
+    {% endif %}
+
+project_description:
+  type: str
+  help: One-line description
+  default: ""
+
+first_domain:
+  type: str
+  help: Name of the first bounded-context domain under core/ (snake_case)
+  default: example
+  validator: >-
+    {% if not (first_domain | regex_search('^[a-z][a-z0-9_]*$')) %}
+    first_domain must be snake_case.
+    {% endif %}
+
+python_version:
+  type: str
+  help: Target Python (3.13 floor; 3.14 preferred)
+  default: "3.14"
+  choices:
+    - "3.14"
+    - "3.13"
+
+author_email:
+  type: str
+  default: steve@saxcapital.co
+
+# ── Opt-in modules (tiered standard: required core + opt-in shells) ──────────
+include_temporal:
+  type: bool
+  help: "Temporal: workflows/ + activities/ + steps/ + worker.py + core/contracts/"
+  default: false
+
+include_db:
+  type: bool
+  help: "Persistence: db/ (SQLAlchemy 2.0) + vendored Alembic migrations"
+  default: false
+
+include_web:
+  type: bool
+  help: "Web: web/ (FastAPI server-rendered UI + HTTP API) + e2e tests"
+  default: false
+
+include_clients:
+  type: bool
+  help: "clients/ for outbound third-party I/O (S3, LLM, email, ...)"
+  default: false
+
+include_observability:
+  type: bool
+  help: "observability.py (structlog + OpenTelemetry wiring)"
+  default: false
+
+# ── Derived (hidden) ────────────────────────────────────────────────────────
+has_shell:
+  type: bool
+  default: "{{ include_temporal or include_db or include_web or include_clients }}"
+  when: false

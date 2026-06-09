@@ -1,0 +1,12 @@
+# {{ project_name }}
+
+Follows the SAX standard layout (see https://github.com/stevegsax/sax-standards) and the house
+`~/.claude/python-guidelines.md`. Key rules for this repo:
+
+- Logic goes in `src/{{ package_name }}/core/<domain>/` — pure, sync, no I/O. Side effects go in
+  shell subpackages. `core/` may not import any shell (enforced by `importlinter.ini`).
+- `settings.py` is the only reader of `os.environ`.
+- Run `just check` before committing; "done" means `just lint` (import-linter) is green.
+{% if include_temporal %}- Temporal: register workflows/activities via the `workflows()` / `activities()` lists in
+  `worker.py`; never via import-time side effects.
+{% endif %}

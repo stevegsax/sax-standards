@@ -1,0 +1,15 @@
+"""Shared test fixtures and safety guards."""
+{%- if include_db %}
+
+import os
+
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _guard_database_url() -> None:
+    """Refuse to run against anything that isn't clearly a test database."""
+    url = os.environ.get("{{ package_name | upper }}_DATABASE_URL", "")
+    if url and not any(marker in url for marker in ("test", "localhost", "127.0.0.1")):
+        raise RuntimeError(f"Refusing to run against non-test database: {url!r}")
+{%- endif %}

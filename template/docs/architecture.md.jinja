@@ -1,0 +1,10 @@
+# {{ project_name }} architecture
+
+Follows the [SAX standard layout](https://github.com/stevegsax/sax-standards).
+
+- Logic lives in `src/{{ package_name }}/core/<domain>/` (pure, sync, no I/O).
+- Side effects live in shell subpackages ({% if include_db %}`db/`, {% endif %}{% if include_temporal %}`workflows/`, `activities/`, {% endif %}{% if include_web %}`web/`, {% endif %}{% if include_clients %}`clients/`, {% endif %}…).
+- `core/` may not import any shell — enforced by `importlinter.ini` (`just lint`).
+{% if include_temporal %}- Temporal contracts are in `core/contracts/`; graduate to a published wheel only when a second REPO imports them.
+{% endif %}
+Record significant decisions as ADRs under `decisions/`.

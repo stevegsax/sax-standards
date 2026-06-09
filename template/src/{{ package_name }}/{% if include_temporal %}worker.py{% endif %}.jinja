@@ -1,0 +1,29 @@
+"""Temporal worker — the single registration chokepoint."""
+
+import asyncio
+
+from temporalio.client import Client
+from temporalio.worker import Worker
+
+from {{ package_name }}.activities import activities
+from {{ package_name }}.core.contracts.constants import NAMESPACE, TASK_QUEUE
+from {{ package_name }}.settings import Settings
+from {{ package_name }}.workflows import workflows
+
+
+async def _run() -> None:
+    """Connect and run the worker until cancelled."""
+    settings = Settings()
+    client = await Client.connect(settings.temporal_target, namespace=NAMESPACE)
+    worker = Worker(
+        client,
+        task_queue=TASK_QUEUE,
+        workflows=workflows(),
+        activities=activities(),
+    )
+    await worker.run()
+
+
+def run_worker() -> None:
+    """Entrypoint: run the Temporal worker."""
+    asyncio.run(_run())

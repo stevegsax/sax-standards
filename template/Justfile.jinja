@@ -1,0 +1,33 @@
+# Task runner. `just` with no args lists recipes.
+default:
+    @just --list
+
+# Run the full gate locally (what CI runs).
+check: lint typecheck test
+
+# Lint + format check + the import-direction contract (the compliance gate).
+lint:
+    uv run ruff check .
+    uv run ruff format --check .
+    uv run lint-imports
+
+typecheck:
+    uv run mypy --strict src
+
+test:
+    uv run pytest
+{% if has_shell %}
+# Shell tests against real ephemeral dependencies.
+test-integration:
+    uv run pytest -m integration
+{% endif %}
+{%- if include_web %}
+# Run the web app.
+up:
+    uv run uvicorn {{ package_name }}.web.app:app --reload
+{% endif %}
+{%- if include_temporal %}
+# Run the Temporal worker.
+worker:
+    uv run {{ package_name }} worker
+{% endif %}

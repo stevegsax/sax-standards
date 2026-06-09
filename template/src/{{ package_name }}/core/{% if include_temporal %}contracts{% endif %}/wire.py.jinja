@@ -1,0 +1,16 @@
+"""Wire models — workflow/activity request & response DTOs."""
+
+from pydantic import BaseModel
+
+
+class {{ first_domain | capitalize }}Request(BaseModel):
+    """Input to the {{ first_domain }} workflow."""
+
+    name: str
+
+
+class {{ first_domain | capitalize }}Result(BaseModel):
+    """Output of the {{ first_domain }} workflow."""
+
+    name: str
+    ok: bool

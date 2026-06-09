@@ -1,0 +1,26 @@
+"""Application configuration — the single reader of the environment."""
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Loaded once at startup; fail-fast on missing required config.
+
+    Pure code receives the scalar values it needs, never this whole object.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="{{ package_name | upper }}_")
+{%- if include_db %}
+
+    database_url: str
+{%- endif %}
+{%- if include_temporal %}
+
+    temporal_target: str = "localhost:7233"
+    temporal_namespace: str = "default"
+{%- endif %}
+{%- if include_web %}
+
+    web_host: str = "127.0.0.1"
+    web_port: int = 8000
+{%- endif %}

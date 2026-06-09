@@ -1,0 +1,9 @@
+"""Domain error hierarchy — stdlib-only leaf."""
+
+
+class AppError(Exception):
+    """Base for all {{ project_name }} domain errors."""
+
+
+class NotFoundError(AppError):
+    """A requested entity does not exist."""

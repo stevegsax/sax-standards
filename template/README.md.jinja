@@ -1,0 +1,22 @@
+# {{ project_name }}
+
+{{ project_description }}
+
+## Develop
+
+```sh
+uv sync
+just check        # lint + typecheck + test (the CI gate)
+```
+
+## Layout
+
+This repo follows the [SAX standard layout](https://github.com/stevegsax/sax-standards).
+Logic lives in `src/{{ package_name }}/core/` (pure); side effects live in shell subpackages.
+The import-direction contract in `importlinter.ini` is the compliance gate — run `just lint`.
+{% if include_temporal %}
+- Worker: `just worker`
+{%- endif %}
+{%- if include_web %}
+- Web: `just up`
+{%- endif %}

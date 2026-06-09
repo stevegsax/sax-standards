@@ -1,0 +1,13 @@
+"""Example outbound client — replace with real S3/LLM/email adapters."""
+
+
+class ConsoleNotifier:
+    """A notifier adapter; collects messages in memory as a placeholder."""
+
+    def __init__(self) -> None:
+        """Start with an empty outbox."""
+        self._sent: list[str] = []
+
+    def send(self, message: str) -> None:
+        """Record an outbound message."""
+        self._sent.append(message)

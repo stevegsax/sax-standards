@@ -1,0 +1,14 @@
+"""{{ first_domain | capitalize }} activities — thin shells; delegate to core, do I/O via db/clients."""
+
+from temporalio import activity
+
+from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
+from {{ package_name }}.core.{{ first_domain }}.logic import make_{{ first_domain }}
+from {{ package_name }}.core.contracts.wire import {{ first_domain | capitalize }}Request, {{ first_domain | capitalize }}Result
+
+
+@activity.defn
+async def persist_{{ first_domain }}(request: {{ first_domain | capitalize }}Request) -> {{ first_domain | capitalize }}Result:
+    """Validate the request (pure decision in core) and report the outcome."""
+    result = make_{{ first_domain }}(request.name)
+    return {{ first_domain | capitalize }}Result(name=request.name, ok=isinstance(result, {{ first_domain | capitalize }}))

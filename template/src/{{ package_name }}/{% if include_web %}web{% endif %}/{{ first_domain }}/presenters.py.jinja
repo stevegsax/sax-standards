@@ -1,0 +1,11 @@
+"""Pure view-model builders for {{ first_domain }} — core-adjacent, no I/O."""
+
+from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
+from {{ package_name }}.core.{{ first_domain }}.logic import InvalidName
+
+
+def to_view(result: {{ first_domain | capitalize }} | InvalidName) -> dict[str, object]:
+    """Build a template-ready dict from a core result."""
+    if isinstance(result, InvalidName):
+        return {"ok": False, "name": None}
+    return {"ok": True, "name": result.name}

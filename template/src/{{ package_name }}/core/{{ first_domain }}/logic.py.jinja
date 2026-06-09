@@ -1,0 +1,20 @@
+"""Pure {{ first_domain }} logic — no I/O; expected failures are return values."""
+
+from dataclasses import dataclass
+from typing import Literal
+
+from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class InvalidName:
+    """The supplied name was empty or whitespace."""
+
+    reason: Literal["empty"] = "empty"
+
+
+def make_{{ first_domain }}(name: str) -> {{ first_domain | capitalize }} | InvalidName:
+    """Construct a {{ first_domain | capitalize }} from a raw name, or return InvalidName."""
+    if not name.strip():
+        return InvalidName()
+    return {{ first_domain | capitalize }}(name=name)

@@ -1,0 +1,8 @@
+"""Temporal workflows. Registered via the side-effect-free workflows() list."""
+
+from {{ package_name }}.workflows.{{ first_domain }} import {{ first_domain | capitalize }}Workflow
+
+
+def workflows() -> list[type]:
+    """Return all workflow classes for the worker to register."""
+    return [{{ first_domain | capitalize }}Workflow]

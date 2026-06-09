@@ -1,0 +1,11 @@
+"""Protocol seams the core depends on; the shell supplies implementations."""
+
+from typing import Protocol
+
+
+class Clock(Protocol):
+    """Supplies the current time as an injected dependency."""
+
+    def now_iso(self) -> str:
+        """Return the current time as an ISO-8601 string."""
+        ...

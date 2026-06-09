@@ -1,0 +1,15 @@
+"""Engine/session factories — built by the shell at startup, never module globals."""
+
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, sessionmaker
+
+
+def make_engine(database_url: str) -> Engine:
+    """Create a SQLAlchemy engine for the given URL."""
+    return create_engine(database_url)
+
+
+def make_session_factory(engine: Engine) -> sessionmaker[Session]:
+    """Create a session factory bound to the engine."""
+    return sessionmaker(bind=engine)

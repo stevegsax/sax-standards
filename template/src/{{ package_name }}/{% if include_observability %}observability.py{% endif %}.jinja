@@ -1,0 +1,8 @@
+"""Observability wiring — structlog + OpenTelemetry; NoOp exporter under test."""
+
+import structlog
+
+
+def configure_logging() -> None:
+    """Configure structured logging for the process (call once at startup)."""
+    structlog.configure()

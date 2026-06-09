@@ -1,0 +1,30 @@
+"""{{ first_domain | capitalize }} persistence — ORM row + repository functions.
+
+Sessions are passed in as the first parameter; repos return frozen core values.
+"""
+
+from sqlalchemy import select
+from sqlalchemy.orm import Mapped, Session, mapped_column
+
+from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
+from {{ package_name }}.db.base import Base
+
+
+class {{ first_domain | capitalize }}Row(Base):
+    """ORM row for a {{ first_domain }}."""
+
+    __tablename__ = "{{ first_domain }}"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(unique=True)
+
+    def to_value(self) -> {{ first_domain | capitalize }}:
+        """Convert this row to a frozen core value."""
+        return {{ first_domain | capitalize }}(name=self.name)
+
+
+def get_{{ first_domain }}(session: Session, name: str) -> {{ first_domain | capitalize }} | None:
+    """Fetch a {{ first_domain }} by name as a frozen core value, or None."""
+    stmt = select({{ first_domain | capitalize }}Row).where({{ first_domain | capitalize }}Row.name == name)
+    row = session.execute(stmt).scalar_one_or_none()
+    return row.to_value() if row is not None else None

@@ -1,0 +1,14 @@
+"""{{ first_domain | capitalize }} HTTP routes — shell only; delegates to core + presenters."""
+
+from fastapi import APIRouter
+
+from {{ package_name }}.core.{{ first_domain }}.logic import make_{{ first_domain }}
+from {{ package_name }}.web.{{ first_domain }}.presenters import to_view
+
+router = APIRouter(prefix="/{{ first_domain }}")
+
+
+@router.get("/{name}")
+def show(name: str) -> dict[str, object]:
+    """Validate a name via core and return a view model."""
+    return to_view(make_{{ first_domain }}(name))

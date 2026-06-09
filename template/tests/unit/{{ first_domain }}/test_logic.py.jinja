@@ -1,0 +1,18 @@
+"""Unit tests for {{ first_domain }} logic — pure, no I/O."""
+
+import pytest
+
+from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
+from {{ package_name }}.core.{{ first_domain }}.logic import InvalidName, make_{{ first_domain }}
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("acme", {{ first_domain | capitalize }}(name="acme")),
+        ("   ", InvalidName()),
+    ],
+)
+def test_make_{{ first_domain }}(name: str, expected: {{ first_domain | capitalize }} | InvalidName) -> None:
+    """make_{{ first_domain }} returns a value or InvalidName."""
+    assert make_{{ first_domain }}(name) == expected

@@ -1,0 +1,49 @@
+[importlinter]
+root_package = {{ package_name }}
+include_external_packages = True
+{% if has_shell %}
+[importlinter:contract:core-is-pure]
+name = core may not import any shell subpackage
+type = forbidden
+source_modules =
+    {{ package_name }}.core
+forbidden_modules =
+{%- if include_db %}
+    {{ package_name }}.db
+{%- endif %}
+{%- if include_temporal %}
+    {{ package_name }}.workflows
+    {{ package_name }}.activities
+    {{ package_name }}.steps
+    {{ package_name }}.worker
+{%- endif %}
+{%- if include_web %}
+    {{ package_name }}.web
+{%- endif %}
+{%- if include_clients %}
+    {{ package_name }}.clients
+{%- endif %}
+{%- if include_observability %}
+    {{ package_name }}.observability
+{%- endif %}
+{% endif %}
+[importlinter:contract:core-no-io-libs]
+{%- if include_temporal %}
+name = core.contracts may not import I/O libraries
+source_modules =
+    {{ package_name }}.core.contracts
+{%- else %}
+name = core may not import I/O libraries
+source_modules =
+    {{ package_name }}.core
+{%- endif %}
+type = forbidden
+forbidden_modules =
+    sqlalchemy
+    httpx
+    requests
+    boto3
+{%- if include_temporal %}
+    asyncio
+    logging
+{%- endif %}

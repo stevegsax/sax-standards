@@ -1,0 +1,9 @@
+"""Dependency providers — the only reader of app.state; one Depends per resource."""
+
+from fastapi import Request
+
+
+def settings_env(request: Request) -> str:
+    """Example dependency: read a value stashed on app.state at startup."""
+    value: str = getattr(request.app.state, "env", "")
+    return value
