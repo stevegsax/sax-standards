@@ -105,4 +105,11 @@ asyncio_mode = "auto"
 {%- endif %}
 
 [tool.coverage.report]
-exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
+# The blessed set the pyqc auditor also measures with: the only patterns the
+# house guidelines mandate as unreachable (assert_never exhaustiveness arms).
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "assert_never\\(",
+    "case _ as unreachable:",
+]
