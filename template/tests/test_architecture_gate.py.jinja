@@ -46,3 +46,25 @@ def test_every_shell_module_is_forbidden_to_core() -> None:
         f"shell modules missing from the core-is-pure contract: {sorted(missing)}; "
         "add them to forbidden_modules in importlinter.ini"
     )
+
+
+def test_purity_contracts_source_the_whole_core() -> None:
+    """Narrowing (or deleting) a purity contract silently re-opens the gate."""
+    config = ConfigParser()
+    config.read(_REPO_ROOT / "importlinter.ini")
+    for contract in ("core-is-pure", "core-no-io-libs"):
+        section = config[f"importlinter:contract:{contract}"]
+        sources = section["source_modules"].split()
+        assert f"{_PACKAGE}.core" in sources, (
+            f"{contract} must source {_PACKAGE}.core, not a narrower subpackage"
+        )
+{%- if include_temporal %}
+
+
+def test_contracts_sandbox_contract_exists() -> None:
+    """Temporal repos must keep the core.contracts sandbox-safety contract."""
+    config = ConfigParser()
+    config.read(_REPO_ROOT / "importlinter.ini")
+    section = config["importlinter:contract:contracts-sandbox-safe"]
+    assert f"{_PACKAGE}.core.contracts" in section["source_modules"].split()
+{%- endif %}

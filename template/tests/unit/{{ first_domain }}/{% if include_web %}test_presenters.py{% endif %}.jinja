@@ -19,7 +19,8 @@ from {{ package_name }}.web.{{ first_domain }}.presenters import to_view
     ],
 )
 def test_to_view(
-    result: {{ first_domain | capitalize }} | InvalidName, expected: dict[str, object]
+    result: {{ first_domain | capitalize }} | InvalidName,
+    expected: dict[str, object],
 ) -> None:
     """to_view arranges a core result into a template-ready dict."""
     assert to_view(result) == expected
