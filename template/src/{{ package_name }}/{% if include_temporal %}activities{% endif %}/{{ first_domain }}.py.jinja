@@ -2,9 +2,13 @@
 
 from temporalio import activity
 
-from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
-from {{ package_name }}.core.{{ first_domain }}.logic import make_{{ first_domain }}
+{% if first_domain < "contracts" -%}
+from {{ package_name }}.core.{{ first_domain }}.logic import InvalidName, make_{{ first_domain }}
 from {{ package_name }}.core.contracts.wire import {{ first_domain | capitalize }}Request, {{ first_domain | capitalize }}Result
+{%- else -%}
+from {{ package_name }}.core.contracts.wire import {{ first_domain | capitalize }}Request, {{ first_domain | capitalize }}Result
+from {{ package_name }}.core.{{ first_domain }}.logic import InvalidName, make_{{ first_domain }}
+{%- endif %}
 
 
 @activity.defn
@@ -15,4 +19,4 @@ def persist_{{ first_domain }}(request: {{ first_domain | capitalize }}Request) 
     sync db/ repositories and sync clients/ directly.
     """
     result = make_{{ first_domain }}(request.name)
-    return {{ first_domain | capitalize }}Result(name=request.name, ok=isinstance(result, {{ first_domain | capitalize }}))
+    return {{ first_domain | capitalize }}Result(name=request.name, ok=not isinstance(result, InvalidName))
