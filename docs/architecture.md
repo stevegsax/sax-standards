@@ -76,10 +76,13 @@ myapp/                                  # repo root — ONE installable package 
 
 ## The import-direction contract
 
-`core/` may not import any shell subpackage, and `core/contracts/` may import nothing impure.
-This is the load-bearing invariant; `importlinter.ini` encodes it and `just lint` runs it in CI.
-A new domain folder MUST be added to the contract — a meta-test treats a missing entry as a
-build break, so the gate can't silently develop holes.
+`core/` may not import any shell module (including `settings`) or any I/O library, and with
+Temporal `core/contracts/` must additionally stay sandbox-safe (no `asyncio`/`logging`).
+This is the load-bearing invariant; `importlinter.ini` encodes it as the `core-is-pure`,
+`core-no-io-libs`, and (Temporal) `contracts-sandbox-safe` contracts, and `just lint` runs it
+in CI. A new shell module MUST be added to the `core-is-pure` forbidden list — a meta-test
+(`tests/test_architecture_gate.py`) treats a missing entry as a build break, so the gate
+can't silently develop holes.
 
 ## Layer rules (from the house python-guidelines)
 
@@ -100,9 +103,11 @@ build break, so the gate can't silently develop holes.
 - **Presenters arrange, they don't compute.** Pure view-model builders live in
   `web/<domain>/presenters.py` (a view concern, local to the slice), NOT in `core/` — the core
   models the domain, not how it's rendered. "Pure" ≠ "belongs in core": the core is pure *domain*
-  logic; a presenter is pure *view* arrangement. A presenter that computes a value (total, derived
-  status, formatted money) holds misplaced domain logic — push the computation into
-  `core/<domain>/` and leave the presenter as pure arrangement. Presenters are pure, so they get
+  logic; a presenter is pure *view* arrangement. A presenter that computes a domain value (a
+  total, a derived status, money arithmetic or business rounding) holds misplaced domain logic —
+  push the computation into `core/<domain>/`. Formatting an already-computed value for display
+  (rendering a `Decimal` as a string, localizing a date) is arrangement and stays in the
+  presenter. Presenters are pure, so they get
   **unit** tests in `tests/unit/<domain>/` alongside the domain's core tests (the unit/integration
   split is pure-vs-I/O, not core-vs-shell — `tests/unit/<domain>/` holds *all* of a domain's pure
   tests, wherever the pure code physically lives).

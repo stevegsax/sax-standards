@@ -1,7 +1,9 @@
 """View-model builders for {{ first_domain }} — arrange core values for templates.
 
-Pure and local to the web slice. Arrange ONLY: any computation (totals, derived
-status, formatting) is domain logic and belongs in core/{{ first_domain }}/.
+Pure and local to the web slice. Arrange ONLY: computing a domain value (a total,
+a derived status, money arithmetic or business rounding) belongs in
+core/{{ first_domain }}/; formatting an already-computed value for display
+(Decimal -> string, date localization) belongs here.
 """
 
 from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}

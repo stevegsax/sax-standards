@@ -12,8 +12,9 @@ seam (`core/contracts/`) so moving up a tier is a `git mv`, not a restructuring.
 | **2nd deployable, same team/cadence** | a `uv` workspace member `packages/<pkg>-contracts/` | one `uv.lock`, atomic cross-package refactors |
 | **Independently-operated service, separate repo** | a **published** `<pkg>-contracts` distribution | hard boundary; communicate only via wire models + string constants |
 
-`core/contracts/` is pure pydantic + `Final` + `Protocol`, so the inward-only import rule makes
-it automatically Temporal-sandbox-safe (ORM lives only in `db/`, which `core/` may not import).
+`core/contracts/` is pure pydantic + `Final` + `Protocol`; the inward-only import rule plus the
+`contracts-sandbox-safe` contract (no `asyncio`/`logging` in `core/contracts/`) keeps it
+Temporal-sandbox-safe (ORM lives only in `db/`, which `core/` may not import).
 
 Extract a wheel **only when a second _repo_ must import the contracts — not one day before.**
 

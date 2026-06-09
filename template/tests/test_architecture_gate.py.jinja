@@ -1,0 +1,48 @@
+"""Meta-test: the import gate cannot silently develop holes.
+
+Every top-level module of ``src/{{ package_name }}/`` other than ``core/`` and the
+stdlib-only pure leaves (``ids``, ``errors``) must appear in the ``core-is-pure``
+contract's forbidden modules in ``importlinter.ini``. A new shell module that is
+not added to the contract is a build break, not a silent gap in the gate.
+"""
+
+from configparser import ConfigParser
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_PACKAGE = "{{ package_name }}"
+
+# Modules core/ may import: itself and the stdlib-only pure leaves.
+_PURE = frozenset({"core", "ids", "errors"})
+
+
+def _top_level_modules() -> frozenset[str]:
+    """Top-level modules and subpackages of the installed package."""
+    names: set[str] = set()
+    for path in (_REPO_ROOT / "src" / _PACKAGE).iterdir():
+        if path.name.startswith((".", "_")) or path.name == "py.typed":
+            continue
+        if path.is_dir():
+            names.add(path.name)
+        elif path.suffix == ".py":
+            names.add(path.stem)
+    return frozenset(names)
+
+
+def _forbidden_to_core() -> frozenset[str]:
+    """Module names the core-is-pure contract forbids, package prefix stripped."""
+    config = ConfigParser()
+    config.read(_REPO_ROOT / "importlinter.ini")
+    forbidden = config["importlinter:contract:core-is-pure"]["forbidden_modules"]
+    return frozenset(
+        module.removeprefix(f"{_PACKAGE}.") for module in forbidden.split()
+    )
+
+
+def test_every_shell_module_is_forbidden_to_core() -> None:
+    """A shell module missing from the contract is a hole in the compliance gate."""
+    missing = _top_level_modules() - _PURE - _forbidden_to_core()
+    assert not missing, (
+        f"shell modules missing from the core-is-pure contract: {sorted(missing)}; "
+        "add them to forbidden_modules in importlinter.ini"
+    )

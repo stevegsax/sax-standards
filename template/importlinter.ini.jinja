@@ -1,13 +1,15 @@
 [importlinter]
 root_package = {{ package_name }}
 include_external_packages = True
-{% if has_shell %}
+
 [importlinter:contract:core-is-pure]
-name = core may not import any shell subpackage
+name = core may not import any shell module
 type = forbidden
 source_modules =
     {{ package_name }}.core
 forbidden_modules =
+    {{ package_name }}.settings
+    {{ package_name }}.cli
 {%- if include_db %}
     {{ package_name }}.db
 {%- endif %}
@@ -26,24 +28,32 @@ forbidden_modules =
 {%- if include_observability %}
     {{ package_name }}.observability
 {%- endif %}
-{% endif %}
+
 [importlinter:contract:core-no-io-libs]
-{%- if include_temporal %}
-name = core.contracts may not import I/O libraries
-source_modules =
-    {{ package_name }}.core.contracts
-{%- else %}
 name = core may not import I/O libraries
+type = forbidden
 source_modules =
     {{ package_name }}.core
-{%- endif %}
-type = forbidden
 forbidden_modules =
     sqlalchemy
+    psycopg
+    asyncpg
     httpx
+    aiohttp
     requests
     boto3
+    redis
+    smtplib
+    socket
+    subprocess
 {%- if include_temporal %}
+
+[importlinter:contract:contracts-sandbox-safe]
+name = core.contracts may not import asyncio or logging (Temporal sandbox safety)
+type = forbidden
+source_modules =
+    {{ package_name }}.core.contracts
+forbidden_modules =
     asyncio
     logging
 {%- endif %}
