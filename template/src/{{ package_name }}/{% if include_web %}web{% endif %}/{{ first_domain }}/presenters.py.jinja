@@ -1,4 +1,8 @@
-"""Pure view-model builders for {{ first_domain }} — core-adjacent, no I/O."""
+"""View-model builders for {{ first_domain }} — arrange core values for templates.
+
+Pure and local to the web slice. Arrange ONLY: any computation (totals, derived
+status, formatting) is domain logic and belongs in core/{{ first_domain }}/.
+"""
 
 from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
 from {{ package_name }}.core.{{ first_domain }}.logic import InvalidName

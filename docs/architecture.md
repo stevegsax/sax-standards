@@ -97,6 +97,15 @@ build break, so the gate can't silently develop holes.
   Temporal DB activities are sync `def` run via the worker's `ThreadPoolExecutor`; workflows stay
   `async` (orchestration only, no I/O). Async lives only in `clients/` for genuinely concurrent
   external I/O (`asyncio.TaskGroup`). A service may opt into async DB locally only on measured need.
+- **Presenters arrange, they don't compute.** Pure view-model builders live in
+  `web/<domain>/presenters.py` (a view concern, local to the slice), NOT in `core/` — the core
+  models the domain, not how it's rendered. "Pure" ≠ "belongs in core": the core is pure *domain*
+  logic; a presenter is pure *view* arrangement. A presenter that computes a value (total, derived
+  status, formatted money) holds misplaced domain logic — push the computation into
+  `core/<domain>/` and leave the presenter as pure arrangement. Presenters are pure, so they get
+  **unit** tests in `tests/unit/<domain>/` alongside the domain's core tests (the unit/integration
+  split is pure-vs-I/O, not core-vs-shell — `tests/unit/<domain>/` holds *all* of a domain's pure
+  tests, wherever the pure code physically lives).
 - Forbid a `core/shared/` or `core/common/` domain — cross-domain pure helpers live in a named
   domain or are promoted deliberately.
 

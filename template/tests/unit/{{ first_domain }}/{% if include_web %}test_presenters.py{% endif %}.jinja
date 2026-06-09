@@ -1,0 +1,25 @@
+"""Unit tests for {{ first_domain }} presenters — pure arrangement, no I/O.
+
+Presenters live in the web shell but are pure, so they get cheap unit tests here
+alongside the domain's core tests (the unit/integration split is pure-vs-I/O).
+"""
+
+import pytest
+
+from {{ package_name }}.core.{{ first_domain }}.domain import {{ first_domain | capitalize }}
+from {{ package_name }}.core.{{ first_domain }}.logic import InvalidName
+from {{ package_name }}.web.{{ first_domain }}.presenters import to_view
+
+
+@pytest.mark.parametrize(
+    ("result", "expected"),
+    [
+        ({{ first_domain | capitalize }}(name="acme"), {"ok": True, "name": "acme"}),
+        (InvalidName(), {"ok": False, "name": None}),
+    ],
+)
+def test_to_view(
+    result: {{ first_domain | capitalize }} | InvalidName, expected: dict[str, object]
+) -> None:
+    """to_view arranges a core result into a template-ready dict."""
+    assert to_view(result) == expected
