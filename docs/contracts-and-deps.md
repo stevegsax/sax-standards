@@ -64,3 +64,35 @@ credential config, so `uv sync` then works.
 Move to a serverless PEP 503 index (GitHub Pages / S3 + `uv publish`) only when consumers
 multiply enough that hand-bumping tags hurts, or you want consumers to not need git access to the
 source repo. Neither is true today.
+
+## Migrating an existing repo onto git-tag deps
+
+Converting from editable path deps to git-tag deps has three rules that, skipped, cost real
+round-trips:
+
+1. **Migrate leaves-first.** Order by the internal dependency graph: a package with no internal
+   deps first, then packages that depend on it, then the root app — e.g. `contracts`/`sax-llm` →
+   `pbook` (uses `sax-llm`) → `forge` (uses all three). Migrating the root first pins it to
+   dependencies that are still path-sourced and possibly stale.
+2. **An internal package must source its *own* internal deps via git tags too — and
+   consistently.** If `forge` depends on `pbook` and `sax-llm`, and `pbook` also depends on
+   `sax-llm`, the `sax-llm` spec must be identical everywhere. `{ rev = "v0.1.0" }` and
+   `{ tag = "v0.1.0" }` resolve to the same commit but uv treats them as **conflicting URLs**
+   (the error shows two identical-looking URLs). Fix by making the specs identical (`tag = …`
+   everywhere) — not with `override-dependencies`, which only masks the inconsistency.
+3. **Tag at current HEAD; never pin a stale tag.** A consumer pinned to a tag that lags the
+   package's code is silently **downgraded** — you lose commits and the dependencies the newer
+   code added (a stale `pbook` tag dropped `pgvector`/`psycopg` this way). Before pinning, confirm
+   the tag == the code you've been developing against; if not, cut a fresh tag.
+
+### Worked sequence (per dependency, leaves-first)
+
+1. In the dep repo: swap its own `[tool.uv.sources]` path deps → git tags (rule 2), bump
+   `[project].version`, `uv lock`, commit.
+2. Tag it at that commit (`vX.Y.Z`) and push the branch **and** the tag
+   (`git push && git push origin vX.Y.Z` — a plain `git push` does **not** push tags).
+3. In the consumer: point `[tool.uv.sources]` at the new tag, `uv lock`, `uv sync`, and verify
+   imports + that no needed transitive deps vanished.
+
+Verify after every `uv lock` with `uv sync` and a smoke import — a resolution that *locks*
+cleanly can still have dropped a transitive dependency your code needs at runtime.
