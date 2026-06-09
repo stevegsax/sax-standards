@@ -26,6 +26,7 @@ def _require_gate_config() -> Path:
         pytest.skip("importlinter.ini not present (mutation-testing copy)")
     return path
 
+
 # Modules core/ may import: itself and the stdlib-only pure leaves.
 _PURE = frozenset({"core", "ids", "errors"})
 
