@@ -89,14 +89,16 @@ exclude = ["src/{{ package_name }}/db/migrations/"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# importlib import mode so same-named test files in different domain dirs
+# (tests/unit/<domain>/test_logic.py) don't collide once a project has 2+ domains.
 {%- if has_shell %}
 markers = [
     "integration: real ephemeral dependencies",
     "e2e: full-stack at the HTTP/CLI boundary",
 ]
-addopts = "-m 'not integration and not e2e' --cov={{ package_name }} --cov-branch"
+addopts = "-m 'not integration and not e2e' --cov={{ package_name }} --cov-branch --import-mode=importlib"
 {%- else %}
-addopts = "--cov={{ package_name }} --cov-branch"
+addopts = "--cov={{ package_name }} --cov-branch --import-mode=importlib"
 {%- endif %}
 {%- if include_temporal %}
 asyncio_mode = "auto"
